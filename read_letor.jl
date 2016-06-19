@@ -1,39 +1,35 @@
+workspace()
+using DataFrames
+
 function read_letor(filename)
     # X is a feature matrix  Y is a ranking cell array
-    using MATLAB
-    f = open(filename)
-    println(filename)
-    X = zeros(10^5, 0)
-    qid = ""
-    i = 0
-    q = 0
-    Y=cell(10^5)
-    while 1
-        l = readline(f)
-        if !typeof(l)==ASCIIString
-            break
+
+
+    df = readtable(filename)
+    X = convert(Matrix, df[4:end])
+    qid_cnt = df[1,1]
+    height = size(df)[1]
+    row_start = 1
+    q=1
+    for loop in 1:height
+        if df[loop,1] != qid_cnt
+            qid_cnt = df[loop,1]
+            q = q+1
         end
-
-        i = i + 1
-        [lab,  ~, ~, ind] = sscanf(l, "#d qid:", 1)
-        l(1:ind-1) = []
-        [nqid, ~, ~, ind] = sscanf(l, "#s", 1)
-        l(1:ind-1 )= []
-
-        if nqid != qid
-            q = q + 1
-            qid = nqid
-            Y{q} = lab
-        else
-            Y{q} = [Y{q}  lab]
-        end
-
-        tmp = sscanf(l, "#d:#f")
-        X(i, tmp(1 : 2 : end)) = tmp(2 : 2 : end)
     end
-
-    X = X(1 : i, :)
-    Y = Y(1:q)
-    fclose(f)
-    return [X,Y]
+    Y = cell(q)
+    q = 1
+    qid_cnt = df[1,1]
+    for loop in 1:height
+        if df[loop,1] != qid_cnt
+            Y[q] = convert(Array, df[row_start:loop-1,3])
+            row_start = loop
+            q = q+1
+            qid_cnt = df[loop,1]
+        end
+        if loop == height
+            Y[q] = convert(Array, df[row_start:loop-1,3])
+        end
+    end
+    return X, Y
 end
