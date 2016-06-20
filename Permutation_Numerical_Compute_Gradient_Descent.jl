@@ -9,8 +9,8 @@ function Permutation_Numerical_Compute_Gradient_Descent_backtracking(filedir)
     # Computes gradient directly without pre-calculating the gradient function
     =#
     push!(LOAD_PATH,"/Users/David/Documents/Julia/Data_Plus")
-    require("Permutation_single_query.jl")
-    require("Permutation_multiple_query.jl")
+    require("Log_Permutation_single_query.jl")
+    require("Log_Permutation_multiple_query.jl")
     require("Permutation_Single_Compute_Gradient_Calc.jl")
     require("read_letor.jl")
 
@@ -52,12 +52,11 @@ function Permutation_Numerical_Compute_Gradient_Descent_backtracking(filedir)
         end
         w = tempW
         param[:,loop] = w
-        likelihood = Permutation_multiple_query(w,X_divid)  # documenting the likelihood value
+        likelihood = Log_Permutation_multiple_query(w,X_divid)  # documenting the likelihood value
         println(w)
-        println(log(likelihood))
+        println(likelihood)
         println(loop)
-        likelihood_vector[loop]=likelihood
-        likelihood_log_vector[loop] = log(likelihood)
+        likelihood_log_vector[loop] = likelihood
         if loop > 20
             if likelihood_log_vector[loop]-likelihood_log_vector[loop-1] < 0 && adj<2000
                 step = step * alpha
@@ -70,7 +69,7 @@ function Permutation_Numerical_Compute_Gradient_Descent_backtracking(filedir)
             end
         end
         if loop > 1
-            if abs(likelihood_log_vector[loop]-likelihood_log_vector[loop-1])<0.0000000000001
+            if abs(likelihood_log_vector[loop]-likelihood_log_vector[loop-1])<0.5
                 println("too small adjustment")
                 break
             end
